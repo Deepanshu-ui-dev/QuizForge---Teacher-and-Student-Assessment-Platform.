@@ -1,25 +1,34 @@
-const express= require('express');
-const cors=require('cors');
-const helmet=require('helmet');
-const morgan=require('morgan');
+require("dotenv").config();
 
-const app=express();
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+
+const authRoutes = require("./modules/auth/auth_route");
+const errorHandler = require("./middleware/error_middleware");
 
 
-/*---- Middlewares --*/
+
+const app = express();
+
+/* ---------- Global Middlewares ---------- */
 app.use(cors());
 app.use(helmet());
-app.use(morgan('common'));
+app.use(morgan("dev"));
 app.use(express.json());
 
+/* ---------- Health Check ---------- */
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Quiz Microservices API is running 🚀"
+    });
+});
 
+/* ---------- Routes ---------- */
+app.use("/api/auth", authRoutes);
 
-const userRoute=require('./routes/user_route');
+app.use(errorHandler);
 
-app.use("/users",userRoute);
-
-app.get('/',(req,res)=>{
-    res.send("quiz microservices backend is running");
-})
-
-module.exports=app;
+module.exports = app;
