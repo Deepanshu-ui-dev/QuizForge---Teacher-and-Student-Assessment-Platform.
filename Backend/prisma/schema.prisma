@@ -12,11 +12,84 @@ enum Role {
   ADMIN
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(USER)
+  createdAt  DateTime @default(now())
+
+  quizzes    Quiz[]
+  results    Result[]
+}
+
+model Quiz {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  duration    Int
+  difficulty  Difficulty
+
+  createdAt   DateTime @default(now())
+
+  createdBy   Int
+
+  creator User @relation(fields: [createdBy], references: [id])
+
+  questions Question[]
+
+  results Result[]
+}
+
+model Question {
+
+  id Int @id @default(autoincrement())
+
+  question String
+
+  optionA String
+
+  optionB String
+
+  optionC String
+
+  optionD String
+
+  correctAnswer String
+
+  marks Int
+
+  quizId Int
+
+  quiz Quiz @relation(fields: [quizId], references: [id])
+}
+
+model Result {
+
+  id Int @id @default(autoincrement())
+
+  score Int
+
+  correctAnswers Int
+
+  wrongAnswers Int
+
+  timeTaken Int
+
+  submittedAt DateTime @default(now())
+
+  userId Int
+
+  quizId Int
+
+  user User @relation(fields: [userId], references: [id])
+
+  quiz Quiz @relation(fields: [quizId], references: [id])
 }

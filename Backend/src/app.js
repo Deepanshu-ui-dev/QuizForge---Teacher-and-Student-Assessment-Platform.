@@ -7,6 +7,7 @@ const morgan = require("morgan");
 
 const authRoutes = require("./modules/auth/auth_route");
 const errorHandler = require("./middleware/error_middleware");
+const quizRoutes = require("./modules/quiz/quiz_route");
 
 
 
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
 
 /* ---------- Routes ---------- */
 app.use("/api/auth", authRoutes);
+app.use("/api/quizzes", quizRoutes);
 
 app.use(errorHandler);
 
