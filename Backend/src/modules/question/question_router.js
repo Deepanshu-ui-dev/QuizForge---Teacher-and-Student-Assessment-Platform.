@@ -21,7 +21,7 @@ router.get(
 );
 
 router.patch(
-    "/questions/:id",
+    "/:id",
     authenticate,
     authorize("ADMIN"),
     validate(updateQuestionSchema),

@@ -13,7 +13,6 @@ const {
     queryParamsSchema
 } = require("./quiz_validator");
 
-// GET all quizzes with pagination, search, filter, and sort
 router.get(
     "/",
     authenticate,
@@ -21,7 +20,6 @@ router.get(
     quizController.getAllQuizzes
 );
 
-// POST create quiz (admin only)
 router.post(
     "/",
     authenticate,
@@ -29,7 +27,6 @@ router.post(
     validate(createQuizSchema),
     quizController.createQuiz
 );
-
 
 router.get("/:id", authenticate, quizController.getQuizById);
 

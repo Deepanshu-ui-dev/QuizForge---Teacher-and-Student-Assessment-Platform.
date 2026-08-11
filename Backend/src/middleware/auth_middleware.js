@@ -1,28 +1,44 @@
-const { verifyToken } = require("../utils/jwt");
+const jwt = require("jsonwebtoken");
+
+const UnauthorizedError =
+    require("../errors/UnauthorizedError");
 
 const authenticate = (req, res, next) => {
 
     try {
 
-        const authHeader = req.headers.authorization;
+        const authHeader =
+            req.headers.authorization;
 
         if (!authHeader) {
-            return res.status(401).json({
-                success: false,
-                message: "Access token required"
-            });
+
+            throw new UnauthorizedError(
+                "Authorization header is required"
+            );
         }
 
-        const [scheme, token] = authHeader.split(" ");
 
-        if (scheme !== "Bearer" || !token) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid access token format"
-            });
+        const [type, token] =
+            authHeader.split(" ");
+
+
+        if (
+            type !== "Bearer" ||
+            !token
+        ) {
+
+            throw new UnauthorizedError(
+                "Invalid authorization format"
+            );
         }
 
-        const decoded = verifyToken(token);
+
+        const decoded =
+            jwt.verify(
+                token,
+                process.env.JWT_SECRET
+            );
+
 
         req.user = decoded;
 
@@ -30,10 +46,34 @@ const authenticate = (req, res, next) => {
 
     } catch (error) {
 
-      next(error);
+        if (
+            error.name ===
+            "JsonWebTokenError"
+        ) {
 
+            return next(
+                new UnauthorizedError(
+                    "Invalid token"
+                )
+            );
+        }
+
+
+        if (
+            error.name ===
+            "TokenExpiredError"
+        ) {
+
+            return next(
+                new UnauthorizedError(
+                    "Token expired"
+                )
+            );
+        }
+
+
+        next(error);
     }
-
 };
 
 module.exports = authenticate;

@@ -5,13 +5,13 @@ const register= async(req,res)=>{
         const user=await authService.register(req.body);
 
         res.status(201).json({
-            sucess: true,
+            success: true,
             data:user
         })
     }
     catch(error){
         res.status(400).json({
-            sucess: false,
+            success: false,
             message: error.message
         })
     }

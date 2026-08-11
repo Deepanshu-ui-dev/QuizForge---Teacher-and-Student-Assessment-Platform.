@@ -25,14 +25,13 @@ const register = async (userData) => {
             role:"USER"
         }
     });
-    delete user.password; // Remove password from the response
+    delete user.password;
 
     return user;
 };
 
 const login = async ({ email, password }) => {
 
-    // Find user
     const user = await prisma.user.findUnique({
         where: {
             email
@@ -43,7 +42,6 @@ const login = async ({ email, password }) => {
         throw new Error("Invalid email or password");
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(
         password,
         user.password
@@ -53,7 +51,6 @@ const login = async ({ email, password }) => {
         throw new Error("Invalid email or password");
     }
 
-    // Generate JWT
     const token = generateToken({
         id: user.id,
         email: user.email,

@@ -69,27 +69,54 @@ model Question {
   quizId Int
 
   quiz Quiz @relation(fields: [quizId], references: [id])
+
+  attemptAnswers AttemptAnswer[]
 }
 
 model Result {
+    id Int @id @default(autoincrement())
 
-  id Int @id @default(autoincrement())
+    score Int
+    totalMarks Int
+    percentage Float
 
-  score Int
+    correctAnswers Int
+    wrongAnswers Int
 
-  correctAnswers Int
+    submittedAt DateTime @default(now())
 
-  wrongAnswers Int
+    userId Int
+    quizId Int
 
-  timeTaken Int
+    user User @relation(fields: [userId], references: [id])
 
-  submittedAt DateTime @default(now())
+    quiz Quiz @relation(fields: [quizId], references: [id])
 
-  userId Int
+    answers AttemptAnswer[]
 
-  quizId Int
+    createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+    @@index([userId])
+    @@index([quizId])
+}
 
-  quiz Quiz @relation(fields: [quizId], references: [id])
+model AttemptAnswer {
+    id Int @id @default(autoincrement())
+
+    resultId Int
+    questionId Int
+
+    selectedAnswer String
+    correctAnswer String
+    isCorrect Boolean
+    marksAwarded Int
+
+    result Result @relation(fields: [resultId], references: [id], onDelete: Cascade)
+
+    question Question @relation(fields: [questionId], references: [id])
+
+    createdAt DateTime @default(now())
+
+    @@index([resultId])
+    @@index([questionId])
 }

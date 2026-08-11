@@ -34,7 +34,7 @@ const mapQuizDetailedToResponse = (quiz) => {
     const baseResponse = mapQuizToResponse(quiz);
     return {
         ...baseResponse,
-        updatedAt: quiz.updatedAt || quiz.createdAt, // If available in schema
+        updatedAt: quiz.updatedAt || quiz.createdAt,
     };
 };
 

@@ -1,13 +1,13 @@
 const prisma = require("../../config/prisma");
 
 const BadRequestError = require("../../errors/BadRequestError");
+const ConflictError = require("../../errors/ConflictError");
 const NotFoundError = require("../../errors/NotFoundError");
 
 const {
     mapQuestionAdminResponse,
     mapQuestionStudentResponse
-} = require("./question.mapper");
-
+} = require("./question_mapper");
 
 const createQuestion = async (quizId, data) => {
 
@@ -190,6 +190,18 @@ const deleteQuestion = async (id) => {
 
     if (!question) {
         throw new NotFoundError("Question not found");
+    }
+
+    const attemptCount = await prisma.attemptAnswer.count({
+        where: {
+            questionId
+        }
+    });
+
+    if (attemptCount > 0) {
+        throw new ConflictError(
+            "Question cannot be deleted because it already has submitted attempts"
+        );
     }
 
     await prisma.question.delete({

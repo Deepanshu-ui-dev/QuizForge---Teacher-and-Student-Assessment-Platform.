@@ -32,10 +32,8 @@ const getAllQuizzes = async (query) => {
 
     const skip = (page - 1) * limit;
 
-    // Build filter object
     const where = {};
 
-    // Search filter (title or description)
     if (search.trim()) {
         where.OR = [
             {
@@ -53,12 +51,10 @@ const getAllQuizzes = async (query) => {
         ];
     }
 
-    // Difficulty filter
     if (difficulty && ["EASY", "MEDIUM", "HARD"].includes(difficulty)) {
         where.difficulty = difficulty;
     }
 
-    // Build order object
     const orderBy = {};
     if (["title", "difficulty", "duration", "createdAt"].includes(sortBy)) {
         orderBy[sortBy] = sortOrder;
@@ -66,10 +62,8 @@ const getAllQuizzes = async (query) => {
         orderBy.createdAt = "desc";
     }
 
-    // Get total count for pagination
     const total = await prisma.quiz.count({ where });
 
-    // Get paginated and sorted results with creator info
     const quizzes = await prisma.quiz.findMany({
         where,
         select: {
