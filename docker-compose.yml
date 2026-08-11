@@ -1,0 +1,55 @@
+services:
+
+  backend:
+    build:
+      context: ./Backend
+    container_name: quiz-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./Backend/.env
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+
+  postgres:
+    image: postgres:18
+    container_name: quiz-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: quiz_platform
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+
+  redis:
+    image: redis:7-alpine
+    container_name: quiz-redis
+    restart: unless-stopped
+
+    ports:
+      - "6380:6379"
+
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: quiz-rabbitmq
+    restart: unless-stopped
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+
+volumes:
+
+  postgres_data:
