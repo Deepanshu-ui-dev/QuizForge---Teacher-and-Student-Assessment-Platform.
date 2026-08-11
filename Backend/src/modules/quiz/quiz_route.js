@@ -10,6 +10,7 @@ const quizController = require("./quiz_controller");
 
 const {
     createQuizSchema,
+    updateQuizSchema,
     queryParamsSchema
 } = require("./quiz_validator");
 
@@ -29,5 +30,13 @@ router.post(
 );
 
 router.get("/:id", authenticate, quizController.getQuizById);
+
+router.patch(
+    "/:id",
+    authenticate,
+    authorize("ADMIN"),
+    validate(updateQuizSchema),
+    quizController.updateQuiz
+);
 
 module.exports = router;

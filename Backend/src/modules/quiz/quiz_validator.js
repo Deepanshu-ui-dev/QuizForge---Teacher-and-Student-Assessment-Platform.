@@ -20,6 +20,31 @@ const createQuizSchema = z.object({
     ])
 });
 
+const updateQuizSchema = z.object({
+    title: z
+        .string()
+        .min(3, "Title must be at least 3 characters")
+        .optional(),
+
+    description: z
+        .string()
+        .min(10, "Description must be at least 10 characters")
+        .optional(),
+
+    duration: z
+        .number()
+        .positive("Duration must be greater than 0")
+        .optional(),
+
+    difficulty: z.enum([
+        "EASY",
+        "MEDIUM",
+        "HARD"
+    ]).optional()
+}).strict().refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided"
+});
+
 const queryParamsSchema = z.object({
     page: z.string().regex(/^\d+$/, "Page must be a number").optional(),
     limit: z.string().regex(/^\d+$/, "Limit must be a number").optional(),
@@ -31,5 +56,6 @@ const queryParamsSchema = z.object({
 
 module.exports = {
     createQuizSchema,
+    updateQuizSchema,
     queryParamsSchema
 };

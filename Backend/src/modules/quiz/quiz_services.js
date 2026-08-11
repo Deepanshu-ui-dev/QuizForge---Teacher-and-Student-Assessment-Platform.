@@ -2,6 +2,7 @@ const prisma = require("../../config/prisma");
 const { mapQuizToResponse, mapPaginatedResponse, mapQuizDetailedToResponse } = require("./quiz.mapper");
 const BadRequestError = require("../../errors/BadRequestError");
 const NotFoundError = require("../../errors/NotFoundError");
+const { getCache, setCache, deleteCache } = require("../../utils/cache");
 
 const createQuiz = async (quizData, userId) => {
     const quiz = await prisma.quiz.create({
@@ -110,6 +111,13 @@ const getQuizById=async(quizId)=>{
         throw new BadRequestError("Invalid quiz id");
     }
 
+    const cacheKey = `quiz:${parsedQuizId}`;
+    const cachedQuiz = await getCache(cacheKey);
+
+    if (cachedQuiz) {
+        return cachedQuiz;
+    }
+
     const quiz=await prisma.quiz.findUnique({
         where:{
             id:parsedQuizId
@@ -141,7 +149,10 @@ const getQuizById=async(quizId)=>{
         throw new NotFoundError("Quiz not found");
     }
 
-    return mapQuizToResponse(quiz);
+    const mappedQuiz = mapQuizToResponse(quiz);
+    await setCache(cacheKey, mappedQuiz, 300);
+
+    return mappedQuiz;
 }
 
 const updateQuiz = async (id, data) => {
@@ -166,8 +177,25 @@ const updateQuiz = async (id, data) => {
         where: {
             id: quizId
         },
-        data
+        data,
+        include: {
+            creator: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            },
+            _count: {
+                select: {
+                    questions: true,
+                    results: true
+                }
+            }
+        }
     });
+
+    await deleteCache(`quiz:${quizId}`);
 
     return mapQuizDetailedToResponse(updatedQuiz);
 };
