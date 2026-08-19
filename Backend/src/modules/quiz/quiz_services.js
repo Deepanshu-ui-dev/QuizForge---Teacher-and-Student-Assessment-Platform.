@@ -200,9 +200,37 @@ const updateQuiz = async (id, data) => {
     return mapQuizDetailedToResponse(updatedQuiz);
 };
 
+const deleteQuiz = async (id) => {
+    const quizId = Number(id);
+
+    if (Number.isNaN(quizId)) {
+        throw new BadRequestError("Invalid quiz id");
+    }
+
+    const existingQuiz = await prisma.quiz.findUnique({
+        where: { id: quizId }
+    });
+
+    if (!existingQuiz) {
+        throw new NotFoundError("Quiz not found");
+    }
+
+    await prisma.$transaction([
+        prisma.attemptAnswer.deleteMany({
+            where: { result: { quizId } }
+        }),
+        prisma.result.deleteMany({ where: { quizId } }),
+        prisma.question.deleteMany({ where: { quizId } }),
+        prisma.quiz.delete({ where: { id: quizId } })
+    ]);
+
+    await deleteCache(`quiz:${quizId}`);
+};
+
 module.exports = {
     createQuiz,
     getAllQuizzes,
     getQuizById,
-    updateQuiz
+    updateQuiz,
+    deleteQuiz
 };      

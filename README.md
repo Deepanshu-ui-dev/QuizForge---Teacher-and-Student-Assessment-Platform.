@@ -74,10 +74,10 @@ Never commit `.env` or `.env.local` — they are gitignored.
 ## Testing the full flow
 
 1. Start the backend (Docker or local).
-2. Run the Flutter app and register a **Student** account.
-3. To try **Teacher** features: set a user's role to `ADMIN` in the database, then log out and back in.
-4. As Teacher: create a quiz, add questions, share the Quiz ID.
-5. As Student: join by ID, complete the quiz, view the result.
+2. Run the Flutter app and register a **Student** account (select *Student* on the register screen).
+3. To try **Teacher** features: register a new account and select *Teacher* on the register screen — the `ADMIN` role is set automatically.
+4. As Teacher: create a quiz, add questions, share the Quiz ID. Delete a quiz from its detail screen when no longer needed.
+5. As Student: join by ID, complete the quiz, view the result. Past attempts are visible in *Attempt History*.
 
 ## Documentation
 

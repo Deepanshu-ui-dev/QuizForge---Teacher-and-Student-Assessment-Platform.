@@ -39,4 +39,11 @@ router.patch(
     quizController.updateQuiz
 );
 
+router.delete(
+    "/:id",
+    authenticate,
+    authorize("ADMIN"),
+    quizController.deleteQuiz
+);
+
 module.exports = router;

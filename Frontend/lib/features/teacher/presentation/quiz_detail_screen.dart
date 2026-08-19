@@ -7,19 +7,53 @@ import '../../../app/theme/app_radii.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/errors/failure_mapper.dart';
 import '../../../core/providers/quiz_data_providers.dart';
+import '../../../core/repositories/repository_providers.dart';
 import '../../../core/utils/difficulty_style.dart';
 import '../../../shared/widgets/app_button.dart';
+import '../../../shared/widgets/confirm_bottom_sheet.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/status_dot.dart';
 
-class QuizDetailScreen extends ConsumerWidget {
+class QuizDetailScreen extends ConsumerStatefulWidget {
   const QuizDetailScreen({super.key, required this.quizId});
   final int quizId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final quizAsync = ref.watch(quizDetailProvider(quizId));
+  ConsumerState<QuizDetailScreen> createState() => _QuizDetailScreenState();
+}
+
+class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
+  bool _deleting = false;
+
+  Future<void> _confirmDelete() async {
+    final confirmed = await showConfirmBottomSheet(
+      context,
+      title: 'Delete quiz?',
+      message:
+          'This will permanently delete the quiz, all its questions, and all student attempt records. This cannot be undone.',
+      confirmLabel: 'Delete',
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _deleting = true);
+    try {
+      await ref.read(quizRepositoryProvider).deleteQuiz(widget.quizId);
+      if (mounted) context.pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(FailureMapper.fromException(e).message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final quizAsync = ref.watch(quizDetailProvider(widget.quizId));
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -27,10 +61,28 @@ class QuizDetailScreen extends ConsumerWidget {
         title: const Text('Quiz Details'),
         actions: [
           quizAsync.maybeWhen(
-            data: (quiz) => IconButton(
+            data: (_) => IconButton(
               icon: const Icon(Icons.edit_outlined),
-              onPressed: () => context.push('/teacher/quizzes/$quizId/edit'),
+              onPressed: () => context.push('/teacher/quizzes/${widget.quizId}/edit'),
             ),
+            orElse: () => const SizedBox(),
+          ),
+          quizAsync.maybeWhen(
+            data: (_) => _deleting
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    color: AppColors.error,
+                    tooltip: 'Delete quiz',
+                    onPressed: _confirmDelete,
+                  ),
             orElse: () => const SizedBox(),
           ),
         ],
@@ -39,7 +91,7 @@ class QuizDetailScreen extends ConsumerWidget {
         loading: () => const LoadingView(),
         error: (e, __) => ErrorView(
           failure: FailureMapper.fromException(e),
-          onRetry: () => ref.invalidate(quizDetailProvider(quizId)),
+          onRetry: () => ref.invalidate(quizDetailProvider(widget.quizId)),
         ),
         data: (quiz) {
           return ListView(
@@ -121,7 +173,7 @@ class QuizDetailScreen extends ConsumerWidget {
               AppButton(
                 label: 'Manage Questions',
                 icon: Icons.list_alt_rounded,
-                onPressed: () => context.push('/teacher/quizzes/$quizId/questions'),
+                onPressed: () => context.push('/teacher/quizzes/${widget.quizId}/questions'),
               ),
               const SizedBox(height: AppSpacing.sm),
               Row(
@@ -131,7 +183,7 @@ class QuizDetailScreen extends ConsumerWidget {
                       label: 'Results',
                       variant: AppButtonVariant.outlined,
                       icon: Icons.bar_chart_rounded,
-                      onPressed: () => context.push('/teacher/quizzes/$quizId/results'),
+                      onPressed: () => context.push('/teacher/quizzes/${widget.quizId}/results'),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -140,7 +192,7 @@ class QuizDetailScreen extends ConsumerWidget {
                       label: 'Analytics',
                       variant: AppButtonVariant.outlined,
                       icon: Icons.insights_outlined,
-                      onPressed: () => context.push('/teacher/quizzes/$quizId/analytics'),
+                      onPressed: () => context.push('/teacher/quizzes/${widget.quizId}/analytics'),
                     ),
                   ),
                 ],

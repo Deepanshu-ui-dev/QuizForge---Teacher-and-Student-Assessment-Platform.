@@ -86,4 +86,12 @@ class QuizRepository {
     }
   }
 
+  Future<void> deleteQuiz(int id) async {
+    try {
+      await _dio.delete(ApiEndpoints.quizById(id.toString()));
+    } catch (e) {
+      throw FailureMapper.fromException(e);
+    }
+  }
+
 }
