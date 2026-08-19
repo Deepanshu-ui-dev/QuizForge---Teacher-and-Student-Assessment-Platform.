@@ -83,9 +83,3 @@ Never commit `.env` or `.env.local` — they are gitignored.
 
 - [Backend/README.md](Backend/README.md) — API setup, env, endpoints overview
 - [Frontend/README.md](Frontend/README.md) — Flutter setup, architecture, known limits
-
-## Known limitations
-
-- Registration always creates a `USER` (student) role — teachers require a manual DB role change to `ADMIN`.
-- Some result/history endpoints are not fully implemented on the backend; the app shows honest empty/error states instead of fake data.
-- Quizzes cannot be deleted from the app (no delete endpoint).
