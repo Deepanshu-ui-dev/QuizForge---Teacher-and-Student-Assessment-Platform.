@@ -26,25 +26,36 @@ const resultRoutes =
 const app = express();
 
 
-// Security
-app.use(helmet());
-
-
-// CORS
 app.use(
-    cors({
-        origin:
-            process.env.CLIENT_URL ||
-            "http://localhost:5173"
+    helmet({
+        crossOriginResourcePolicy: { policy: "cross-origin" }
     })
 );
 
 
-// Logging
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+            return callback(null, true);
+        },
+        credentials: true
+    })
+);
+
+
 app.use(morgan("common"));
 
+app.use((req, res, next) => {
+    const contentType = req.headers["content-type"] || "";
+    const contentLength = Number(req.headers["content-length"] || 0);
+    if (contentType.includes("application/json") && contentLength === 0) {
+        req.body = {};
+        return next();
+    }
+    next();
+});
 
-// Body parser
 app.use(
     express.json({
         limit: "1mb"
@@ -66,7 +77,6 @@ app.get("/health", (req, res) => {
 });
 
 
-// Routes
 app.use(
     "/api/auth",
     authRoutes
@@ -88,11 +98,8 @@ app.use(
 );
 
 
-// 404
 app.use(notFoundMiddleware);
 
-
-// Error handler
 app.use(errorMiddleware);
 
 

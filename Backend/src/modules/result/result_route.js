@@ -5,6 +5,9 @@ const router = express.Router();
 const authenticate =
     require("../../middleware/auth_middleware");
 
+const authorize =
+    require("../../middleware/role_middleware");
+
 const validate =
     require("../../middleware/validator_middleware");
 
@@ -24,6 +27,26 @@ router.post(
     validate(submitQuizSchema),
 
     resultController.submitQuiz
+);
+
+router.get(
+
+    "/quizzes/:quizId/results",
+
+    authenticate,
+
+    authorize("ADMIN"),
+
+    resultController.getQuizResults
+);
+
+router.get(
+
+    "/results",
+
+    authenticate,
+
+    resultController.getAllResults
 );
 
 router.get(

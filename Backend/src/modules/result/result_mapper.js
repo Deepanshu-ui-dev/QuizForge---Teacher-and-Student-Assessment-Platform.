@@ -23,7 +23,15 @@ const mapResultResponse = (result) => {
 
         wrongAnswers: result.wrongAnswers,
 
-        submittedAt: result.submittedAt
+        submittedAt: result.submittedAt,
+
+        user: result.user
+            ? {
+                  id: result.user.id,
+                  name: result.user.name,
+                  email: result.user.email
+              }
+            : null
     };
 };
 
@@ -61,6 +69,14 @@ const mapResultDetailedResponse = (result) => {
         wrongAnswers: result.wrongAnswers,
 
         submittedAt: result.submittedAt,
+
+        user: result.user
+            ? {
+                  id: result.user.id,
+                  name: result.user.name,
+                  email: result.user.email
+              }
+            : null,
 
         answers: result.answers
             ? result.answers.map(answer => ({

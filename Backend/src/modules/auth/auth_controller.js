@@ -1,42 +1,29 @@
 const authService = require('./auth_services');
 
-const register= async(req,res)=>{
-    try{
-        const user=await authService.register(req.body);
+const register = async (req, res, next) => {
+    try {
+        const user = await authService.register(req.body);
 
         res.status(201).json({
             success: true,
-            data:user
-        })
+            data: user
+        });
+    } catch (error) {
+        next(error);
     }
-    catch(error){
-        res.status(400).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
+};
 
-const login = async (req, res) => {
-
+const login = async (req, res, next) => {
     try {
-
         const result = await authService.login(req.body);
 
         res.status(200).json({
             success: true,
             data: result
         });
-
     } catch (error) {
-
-        res.status(401).json({
-            success: false,
-            message: error.message
-        });
-
+        next(error);
     }
-
 };
 
 const profile = async (req, res) => {

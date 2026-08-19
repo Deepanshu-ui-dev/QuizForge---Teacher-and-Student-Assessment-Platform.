@@ -1,10 +1,12 @@
 const prisma = require("../../config/prisma");
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../../utils/jwt");
+const ConflictError = require("../../errors/ConflictError");
+const UnauthorizedError = require("../../errors/UnauthorizedError");
 
 const register = async (userData) => {
 
-    const { name, email, password } = userData;
+    const { name, email, password, role } = userData;
 
     const existingUser = await prisma.user.findUnique({
         where: {
@@ -13,16 +15,17 @@ const register = async (userData) => {
     });
 
     if (existingUser) {
-        throw new Error("Email already exists");
+        throw new ConflictError("Email already exists");
     }
-    const hashedPass= await bcrypt.hash(password,10);
+
+    const hashedPass = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
         data: {
             name,
             email,
             password: hashedPass,
-            role:"USER"
+            role: role === "ADMIN" ? "ADMIN" : "USER"
         }
     });
     delete user.password;
@@ -39,7 +42,7 @@ const login = async ({ email, password }) => {
     });
 
     if (!user) {
-        throw new Error("Invalid email or password");
+        throw new UnauthorizedError("Invalid email or password");
     }
 
     const isMatch = await bcrypt.compare(
@@ -48,7 +51,7 @@ const login = async ({ email, password }) => {
     );
 
     if (!isMatch) {
-        throw new Error("Invalid email or password");
+        throw new UnauthorizedError("Invalid email or password");
     }
 
     const token = generateToken({

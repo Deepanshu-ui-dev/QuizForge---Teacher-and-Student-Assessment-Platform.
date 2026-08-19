@@ -11,7 +11,11 @@ const registerSchema = z.object({
 
     password: z
         .string()
-        .min(8, "Password must be at least 8 characters")
+        .min(8, "Password must be at least 8 characters"),
+
+    role: z
+        .enum(["USER", "ADMIN"])
+        .optional()
 });
 
 const loginSchema = z.object({

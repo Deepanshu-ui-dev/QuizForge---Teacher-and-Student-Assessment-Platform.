@@ -65,6 +65,62 @@ const getMyResults = async (
     }
 };
 
+const getAllResults = async (
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const results =
+            await resultService.getAllResults(
+                req.user
+            );
+
+
+        res.status(200).json({
+
+            success: true,
+
+            data: results
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+};
+
+const getQuizResults = async (
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const results =
+            await resultService.getQuizResults(
+                req.params.quizId
+            );
+
+
+        res.status(200).json({
+
+            success: true,
+
+            data: results
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+};
+
 const getResultById = async (
     req,
     res,
@@ -78,7 +134,7 @@ const getResultById = async (
 
                 req.params.id,
 
-                req.user.id
+                req.user
             );
 
 
@@ -130,6 +186,10 @@ module.exports = {
     submitQuiz,
 
     getMyResults,
+
+    getAllResults,
+
+    getQuizResults,
 
     getResultById,
 

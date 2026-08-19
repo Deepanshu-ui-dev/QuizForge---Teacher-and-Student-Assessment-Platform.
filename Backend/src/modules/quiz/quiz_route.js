@@ -17,7 +17,7 @@ const {
 router.get(
     "/",
     authenticate,
-    validate(queryParamsSchema),
+    validate(queryParamsSchema, "query"),
     quizController.getAllQuizzes
 );
 

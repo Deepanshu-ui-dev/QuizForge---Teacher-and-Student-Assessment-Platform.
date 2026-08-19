@@ -9,36 +9,43 @@ const publishEvent = (
     data
 ) => {
 
-    const channel = getChannel();
+    try {
+        const channel = getChannel();
 
-    channel.assertExchange(
-        EXCHANGE_NAME,
-        "topic",
-        {
-            durable: true
-        }
-    );
+        channel.assertExchange(
+            EXCHANGE_NAME,
+            "topic",
+            {
+                durable: true
+            }
+        );
 
-    const message = {
-        event: eventName,
-        timestamp: new Date().toISOString(),
-        data
-    };
+        const message = {
+            event: eventName,
+            timestamp: new Date().toISOString(),
+            data
+        };
 
-    channel.publish(
-        EXCHANGE_NAME,
-        eventName,
-        Buffer.from(
-            JSON.stringify(message)
-        ),
-        {
-            persistent: true
-        }
-    );
+        channel.publish(
+            EXCHANGE_NAME,
+            eventName,
+            Buffer.from(
+                JSON.stringify(message)
+            ),
+            {
+                persistent: true
+            }
+        );
 
-    console.log(
-        `Event published: ${eventName}`
-    );
+        console.log(
+            `Event published: ${eventName}`
+        );
+    } catch (error) {
+        console.error(
+            `Failed to publish event ${eventName}:`,
+            error.message
+        );
+    }
 };
 
 module.exports = {
