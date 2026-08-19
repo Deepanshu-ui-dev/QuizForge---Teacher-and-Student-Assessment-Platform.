@@ -1,8 +1,11 @@
 # Dependencies
 **/node_modules/
 
-# Environment Variables
+# Environment (never commit secrets)
 **/.env
+**/.env.local
+!**/.env.example
+!**/.env.local.example
 
 # Prisma
 **/.prisma/
@@ -14,9 +17,17 @@
 dist/
 coverage/
 
+# Flutter
+**/.dart_tool/
+**/.packages
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
 # IDE
 .vscode/
 .idea/
+*.iml
 
 # OS
 .DS_Store
